@@ -11,7 +11,7 @@ public class ExampleWindow : EditorWindow
     private string labelSelectionObjet = "";
     private string labelErreurSelection = "";
 
-    [MenuItem("Window/Example")]
+    [MenuItem("Outil CRIN/Association Informations-Environnement")]
     public static void ShowWindow()
     {
         GetWindow<ExampleWindow>("Example");
