@@ -54,6 +54,11 @@ public class ExampleWindow : EditorWindow
         EditorGUILayout.PrefixLabel("Resistance : ");
         resistance = EditorGUILayout.FloatField(resistance);
         EditorGUILayout.EndHorizontal();
+
+        if (GUILayout.Button("Appliquer"))
+        {
+            actionBouton();
+        }
     }
     void Update()
     {
@@ -64,12 +69,6 @@ public class ExampleWindow : EditorWindow
         if (selectionEnvironnement && selectionNonNULL)
             selectionValide = true;
 
-        // On va vérifier si un objet est séléctionné
-        foreach (GameObject obj in Selection.gameObjects)
-        {
-            Debug.Log(obj.GetComponent<Environnement>());
-            //Debug.Log(obj.ToString());
-        }
     }
 
     void checkSiSelectionVide()
@@ -78,10 +77,12 @@ public class ExampleWindow : EditorWindow
         if (Selection.gameObjects.Length == 0)
         {
             labelSelectionObjet = ERREUR_AUCUNE_SELECTION;
+            selectionNonNULL = false;
         }
         else
         {
             labelSelectionObjet = null;
+            selectionNonNULL = true;
         }
     }
 
@@ -93,10 +94,26 @@ public class ExampleWindow : EditorWindow
             if (obj.GetComponent<Environnement>() == null)
             {
                 labelErreurSelection = ERREUR_PAS_ENVIRONNEMENT;
+                selectionNonNULL = false;
                 return;
             }
         }
+        selectionEnvironnement = true;
         labelErreurSelection = null;
+    }
+
+    void actionBouton(){
+        if (selectionValide)
+            {
+                Debug.Log("Action bouton");
+                foreach (GameObject obj in Selection.gameObjects)
+                {
+                    obj.GetComponent<Environnement>().nom = nom;
+                    obj.GetComponent<Environnement>().description = description;
+                    obj.GetComponent<Environnement>().prix = prix;
+                    obj.GetComponent<Environnement>().resistance = resistance;
+                }
+            }
     }
 
 }
