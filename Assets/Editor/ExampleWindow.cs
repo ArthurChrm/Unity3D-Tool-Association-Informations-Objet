@@ -10,8 +10,17 @@ public class ExampleWindow : EditorWindow
     private string ERREUR_PAS_ENVIRONNEMENT = "Votre séléction comporte un ou plusieurs éléments ne contenant pas de composant \"Environnement\"";
     private string labelSelectionObjet = "";
     private string labelErreurSelection = "";
+    private bool selectionNonNULL = false;
+    private bool selectionEnvironnement = false;
+    private bool selectionValide;
 
-    [MenuItem("Outil CRIN/Association Informations-Environnement")]
+    //Variables objet
+    private string nom = "saisir un nom";
+    private string description = "saisir une description";
+    private float prix = 0f;
+    private float resistance = 0f;
+
+    [MenuItem("Outil CDRIN/Association Informations-Environnement")]
     public static void ShowWindow()
     {
         GetWindow<ExampleWindow>("Example");
@@ -21,6 +30,30 @@ public class ExampleWindow : EditorWindow
         // Window code
         GUILayout.Label(labelSelectionObjet);
         GUILayout.Label(labelErreurSelection);
+
+        EditorGUILayout.Separator();
+
+        // Nom
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.PrefixLabel("Nom : ");
+        nom = EditorGUILayout.TextArea(nom);
+        EditorGUILayout.EndHorizontal();
+
+        //Description
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.PrefixLabel("Description : ");
+        description = EditorGUILayout.TextArea(description);
+        EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.PrefixLabel("Prix : ");
+        prix = EditorGUILayout.FloatField(prix);
+        EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.PrefixLabel("Resistance : ");
+        resistance = EditorGUILayout.FloatField(resistance);
+        EditorGUILayout.EndHorizontal();
     }
     void Update()
     {
@@ -28,7 +61,8 @@ public class ExampleWindow : EditorWindow
         checkSiSelectionVide();
         checkSiSelectionValide();
 
-
+        if (selectionEnvironnement && selectionNonNULL)
+            selectionValide = true;
 
         // On va vérifier si un objet est séléctionné
         foreach (GameObject obj in Selection.gameObjects)
