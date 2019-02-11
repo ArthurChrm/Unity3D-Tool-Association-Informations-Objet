@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEditor;
 
-public class ExampleWindow : EditorWindow
+public class OutilCDRIN : EditorWindow
 {
 
 
@@ -23,7 +23,7 @@ public class ExampleWindow : EditorWindow
     [MenuItem("Outil CDRIN/Association Informations-Environnement")]
     public static void ShowWindow()
     {
-        GetWindow<ExampleWindow>("Example");
+        GetWindow<OutilCDRIN>("Example");
     }
     void OnGUI()
     {
@@ -39,17 +39,19 @@ public class ExampleWindow : EditorWindow
         nom = EditorGUILayout.TextArea(nom);
         EditorGUILayout.EndHorizontal();
 
-        //Description
+        // Description
         EditorGUILayout.BeginHorizontal();
         EditorGUILayout.PrefixLabel("Description : ");
         description = EditorGUILayout.TextArea(description);
         EditorGUILayout.EndHorizontal();
 
+        // Prix
         EditorGUILayout.BeginHorizontal();
         EditorGUILayout.PrefixLabel("Prix : ");
         prix = EditorGUILayout.FloatField(prix);
         EditorGUILayout.EndHorizontal();
 
+        // Resistance
         EditorGUILayout.BeginHorizontal();
         EditorGUILayout.PrefixLabel("Resistance : ");
         resistance = EditorGUILayout.FloatField(resistance);
@@ -57,12 +59,18 @@ public class ExampleWindow : EditorWindow
 
         if (GUILayout.Button("Appliquer"))
         {
-            actionBouton();
+            actionBoutonAppliquer();
+        }
+
+        EditorGUILayout.Separator();
+
+        if (GUILayout.Button("Séléctionner une zone"))
+        {
+            actionBoutonSelectionZone();
         }
     }
     void Update()
     {
-
         checkSiSelectionVide();
         checkSiSelectionValide();
 
@@ -102,18 +110,23 @@ public class ExampleWindow : EditorWindow
         labelErreurSelection = null;
     }
 
-    void actionBouton(){
+    void actionBoutonAppliquer()
+    {
         if (selectionValide)
+        {
+            Debug.Log("Action bouton");
+            foreach (GameObject obj in Selection.gameObjects)
             {
-                Debug.Log("Action bouton");
-                foreach (GameObject obj in Selection.gameObjects)
-                {
-                    obj.GetComponent<Environnement>().nom = nom;
-                    obj.GetComponent<Environnement>().description = description;
-                    obj.GetComponent<Environnement>().prix = prix;
-                    obj.GetComponent<Environnement>().resistance = resistance;
-                }
+                obj.GetComponent<Environnement>().nom = nom;
+                obj.GetComponent<Environnement>().description = description;
+                obj.GetComponent<Environnement>().prix = prix;
+                obj.GetComponent<Environnement>().resistance = resistance;
             }
+        }
+    }
+
+    void actionBoutonSelectionZone(){
+        Debug.Log("Action selection zone");
     }
 
 }
