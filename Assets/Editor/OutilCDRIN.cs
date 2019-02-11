@@ -76,6 +76,8 @@ public class OutilCDRIN : EditorWindow
 
         if (selectionEnvironnement && selectionNonNULL)
             selectionValide = true;
+        else
+            selectionValide = false;
 
     }
 
@@ -122,11 +124,20 @@ public class OutilCDRIN : EditorWindow
                 obj.GetComponent<Environnement>().prix = prix;
                 obj.GetComponent<Environnement>().resistance = resistance;
             }
+        }else{
+            EditorUtility.DisplayDialog ("Erreur de sélection", "Votre sélection est invalide.", "Ok");
         }
     }
 
-    void actionBoutonSelectionZone(){
+    void actionBoutonSelectionZone()
+    {
         Debug.Log("Action selection zone");
+        SceneView sv = SceneView.currentDrawingSceneView;
+        Vector3 mousePosition = Event.current.mousePosition;
+        mousePosition.y = sv.camera.pixelHeight - mousePosition.y;
+        mousePosition = sv.camera.ScreenToWorldPoint(mousePosition);
+        mousePosition.y = -mousePosition.y;
+        Debug.Log(mousePosition.x + " , " + mousePosition.y + " , " + mousePosition.z);
     }
 
 }
