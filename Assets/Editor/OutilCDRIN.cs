@@ -23,7 +23,7 @@ public class OutilCDRIN : EditorWindow
     [MenuItem("Outil CDRIN/Association Informations-Environnement")]
     public static void ShowWindow()
     {
-        GetWindow<OutilCDRIN>("Example");
+        GetWindow<OutilCDRIN>("Outil CDRIN");
     }
     void OnGUI()
     {
