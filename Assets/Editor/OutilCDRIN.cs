@@ -1,4 +1,5 @@
 ﻿
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
@@ -13,6 +14,7 @@ public class OutilCDRIN : EditorWindow
     private bool selectionNonNULL = false;
     private bool selectionEnvironnement = false;
     private bool selectionValide;
+    private GameObject selecteur;
 
     //Variables objet
     private string nom = "saisir un nom";
@@ -33,6 +35,8 @@ public class OutilCDRIN : EditorWindow
 
         EditorGUILayout.Separator();
 
+
+        GUILayout.Label("Séléction manuelle dans la hierarchy:");
         // Nom
         EditorGUILayout.BeginHorizontal();
         EditorGUILayout.PrefixLabel("Nom : ");
@@ -64,9 +68,14 @@ public class OutilCDRIN : EditorWindow
 
         EditorGUILayout.Separator();
 
+        GUILayout.Label("Séléction à l'aide d'une zone");
         if (GUILayout.Button("Séléctionner une zone"))
         {
             actionBoutonSelectionZone();
+        }
+        if (GUILayout.Button("Appliquer les modifications à la zone choisie"))
+        {
+            actionBoutonValidationZone();
         }
     }
     void Update()
@@ -125,30 +134,43 @@ public class OutilCDRIN : EditorWindow
                 obj.GetComponent<Environnement>().prix = prix;
                 obj.GetComponent<Environnement>().resistance = resistance;
             }
-        }else{
-            EditorUtility.DisplayDialog ("Erreur de sélection", "Votre sélection est invalide", "Ok");
+        }
+        else
+        {
+            EditorUtility.DisplayDialog("Erreur de sélection", "Votre sélection est invalide", "Ok");
         }
     }
 
     void actionBoutonSelectionZone()
     {
         Debug.Log("Action selection zone");
-        // SceneView sv = SceneView.currentDrawingSceneView;
-        // Vector3 mousePosition = Event.current.mousePosition;
-        // mousePosition.y = sv.camera.pixelHeight - mousePosition.y;
-        // mousePosition = sv.camera.ScreenToWorldPoint(mousePosition);
-        // mousePosition.y = -mousePosition.y;
-        // Debug.Log(mousePosition.x + " , " + mousePosition.y + " , " + mousePosition.z);
+        List<GameObject> parts = new List<GameObject>();
+        GameObject[] allObjects = UnityEngine.GameObject.FindObjectsOfType<GameObject>();
+        foreach (GameObject go in allObjects)
+        {
+            if (go.activeInHierarchy && go.name == "Selecteur")
+                DestroyImmediate(go);
 
-        // GUIUtility.GUIToScreenPoint(Event.current.mousePosition);
-        // Debug.Log(Input.mousePosition);
-        GameObject selecteur = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        }
+        selecteur = GameObject.CreatePrimitive(PrimitiveType.Cube);
         selecteur.name = "Selecteur";
-        //selecteur.GetComponent<Renderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
-        selecteur.GetComponent<Renderer>().material.color.a = 0;
-        EditorUtility.DisplayDialog ("Séléction d'une zone", "Séléctionnez une zone avec le cube.", "Ok");
-        selecteur.transform.position = new Vector3(0, 0.5f, 0);
+        selecteur.GetComponent<Renderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+        EditorUtility.DisplayDialog("Séléction d'une zone", "Séléctionnez une zone avec le cube.", "Ok");
+        selecteur.transform.position = new Vector3(0, 0, 0);
 
+    }
+    void actionBoutonValidationZone()
+    {
+        List<GameObject> parts = new List<GameObject>();
+        GameObject[] allObjects = UnityEngine.GameObject.FindObjectsOfType<GameObject>();
+        foreach (GameObject go in allObjects)
+        {
+            if (go.activeInHierarchy && go.GetComponent<Environnement>() != null)
+            {
+                if(selecteur.GetComponent<Renderer>().bounds.Contains(go.GetComponent<Renderer>().bounds.center))
+                    Debug.Log("okkkkkk :"+go);
+            }
+        }
     }
 
 
