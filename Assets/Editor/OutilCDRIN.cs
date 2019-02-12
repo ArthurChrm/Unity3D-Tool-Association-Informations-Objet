@@ -71,6 +71,7 @@ public class OutilCDRIN : EditorWindow
     }
     void Update()
     {
+        //Debug.Log(Input.mousePosition);
         checkSiSelectionVide();
         checkSiSelectionValide();
 
@@ -125,19 +126,30 @@ public class OutilCDRIN : EditorWindow
                 obj.GetComponent<Environnement>().resistance = resistance;
             }
         }else{
-            EditorUtility.DisplayDialog ("Erreur de sélection", "Votre sélection est invalide.", "Ok");
+            EditorUtility.DisplayDialog ("Erreur de sélection", "Votre sélection est invalide", "Ok");
         }
     }
 
     void actionBoutonSelectionZone()
     {
         Debug.Log("Action selection zone");
-        SceneView sv = SceneView.currentDrawingSceneView;
-        Vector3 mousePosition = Event.current.mousePosition;
-        mousePosition.y = sv.camera.pixelHeight - mousePosition.y;
-        mousePosition = sv.camera.ScreenToWorldPoint(mousePosition);
-        mousePosition.y = -mousePosition.y;
-        Debug.Log(mousePosition.x + " , " + mousePosition.y + " , " + mousePosition.z);
+        // SceneView sv = SceneView.currentDrawingSceneView;
+        // Vector3 mousePosition = Event.current.mousePosition;
+        // mousePosition.y = sv.camera.pixelHeight - mousePosition.y;
+        // mousePosition = sv.camera.ScreenToWorldPoint(mousePosition);
+        // mousePosition.y = -mousePosition.y;
+        // Debug.Log(mousePosition.x + " , " + mousePosition.y + " , " + mousePosition.z);
+
+        // GUIUtility.GUIToScreenPoint(Event.current.mousePosition);
+        // Debug.Log(Input.mousePosition);
+        GameObject selecteur = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        selecteur.name = "Selecteur";
+        //selecteur.GetComponent<Renderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
+        selecteur.GetComponent<Renderer>().material.color.a = 0;
+        EditorUtility.DisplayDialog ("Séléction d'une zone", "Séléctionnez une zone avec le cube.", "Ok");
+        selecteur.transform.position = new Vector3(0, 0.5f, 0);
+
     }
+
 
 }
