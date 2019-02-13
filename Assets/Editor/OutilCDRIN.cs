@@ -30,10 +30,11 @@ public class OutilCDRIN : EditorWindow
     private float[] infoFloatZone = { 0f, 0f };
     private string[] infoStrSauvegarde = { "", "" };
     private float[] infoFloatSauvegarde = { 0f, 0f };
-    private string nomFichier;
+    private string nomFichier = "";
 
     // Autre
     string[] listeSauvegardes;
+    int emplacementChoixRestauration = 0;
 
     [MenuItem("Outil CDRIN/Association Informations-Environnement")]
     public static void ShowWindow()
@@ -159,7 +160,7 @@ public class OutilCDRIN : EditorWindow
         // Séléction nom fichier
         EditorGUILayout.BeginHorizontal();
         EditorGUILayout.PrefixLabel("Nom de la sauvegarde : ");
-        nomFichier = EditorGUILayout.TextArea("");
+        nomFichier = EditorGUILayout.TextArea(nomFichier);
         EditorGUILayout.EndHorizontal();
 
         if (GUILayout.Button("Enregistrer"))
@@ -174,11 +175,13 @@ public class OutilCDRIN : EditorWindow
         GUILayout.Label("Restauration", EditorStyles.boldLabel);
         EditorGUILayout.Separator();
 
+        emplacementChoixRestauration = EditorGUILayout.Popup("Sauvegarde à restaurer", emplacementChoixRestauration, listeSauvegardes);
+
     }
 
-    void Start()
+    void Awake()
     {
-
+        miseAjoutListeSauvegardes();
     }
     void Update()
     {
@@ -268,6 +271,12 @@ public class OutilCDRIN : EditorWindow
 
     void enregistrer()
     {
+        miseAjoutListeSauvegardes();
+        if (nomFichier == "")
+        {
+            EditorUtility.DisplayDialog("Erreur", "Vous devez donner un nom au fichier.", "Ok");
+            return;
+        }
         SauvegardeEnvironnement temp = new SauvegardeEnvironnement();
         temp.nom = infoStrSauvegarde[0];
         temp.description = infoStrSauvegarde[1];
@@ -275,11 +284,26 @@ public class OutilCDRIN : EditorWindow
         temp.resistance = infoFloatSauvegarde[1];
 
         BinaryFormatter bf = new BinaryFormatter();
-        FileStream file = File.Open(Application.persistentDataPath + "/" + nomFichier + ".dat", FileMode.OpenOrCreate);
+        FileStream file = File.Open(Application.persistentDataPath + "/SAV_" + nomFichier + ".dat", FileMode.OpenOrCreate);
 
         bf.Serialize(file, temp);
         file.Close();
-        Debug.Log("Sauvegarde créée à l'endroit :" + Application.persistentDataPath + "/sauvegarde.dat");
+        Debug.Log("Sauvegarde créée :" + Application.persistentDataPath);
+        miseAjoutListeSauvegardes();
+    }
+
+    void miseAjoutListeSauvegardes()
+    {
+        string[] temp = Directory.GetFiles(Application.persistentDataPath);
+        List<string> listeTemp = new List<string>();
+
+        for (int i = 0; i < temp.Length; i++)
+        {
+            listeTemp.Add(Path.GetFileName(temp[i]));
+        }
+
+        listeSauvegardes = listeTemp.ToArray();
+       
     }
 }
 
