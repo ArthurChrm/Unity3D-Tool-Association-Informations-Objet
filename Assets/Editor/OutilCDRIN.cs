@@ -5,8 +5,6 @@ using UnityEditor;
 
 public class OutilCDRIN : EditorWindow
 {
-
-
     private string ERREUR_AUCUNE_SELECTION = "Séléctionnez un ou plusieurs éléments !";
     private string ERREUR_PAS_ENVIRONNEMENT = "Votre séléction comporte un ou plusieurs éléments ne contenant pas de composant \"Environnement\"";
     private string labelSelectionObjet = "";
@@ -15,12 +13,14 @@ public class OutilCDRIN : EditorWindow
     private bool selectionEnvironnement = false;
     private bool selectionValide;
     private GameObject selecteur;
+    private bool desactiverInputSelectionManuelle = false;
+    private bool desactiverAppliquerModificationAZoneChoisie = false;
 
     //Variables objet
-    private string nom = "saisir un nom";
-    private string description = "saisir une description";
-    private float prix = 0f;
-    private float resistance = 0f;
+    private string[] infoStrManuel = { "", "", "0", "0" };
+    private float[] infoFloatManuel = { 0f, 0f };
+    private string[] infoStrZone = { "", "", "0", "0" };
+    private float[] infoFloatZone = { 0f, 0f };
 
     [MenuItem("Outil CDRIN/Association Informations-Environnement")]
     public static void ShowWindow()
@@ -35,30 +35,30 @@ public class OutilCDRIN : EditorWindow
 
         EditorGUILayout.Separator();
 
-
-        GUILayout.Label("Séléction manuelle dans la hierarchy:");
+        GUILayout.Label("Séléction manuelle dans la hierarchy:", EditorStyles.boldLabel);
+        EditorGUI.BeginDisabledGroup(desactiverInputSelectionManuelle);
         // Nom
         EditorGUILayout.BeginHorizontal();
         EditorGUILayout.PrefixLabel("Nom : ");
-        nom = EditorGUILayout.TextArea(nom);
+        infoStrManuel[0] = EditorGUILayout.TextArea(infoStrManuel[0]);
         EditorGUILayout.EndHorizontal();
 
         // Description
         EditorGUILayout.BeginHorizontal();
         EditorGUILayout.PrefixLabel("Description : ");
-        description = EditorGUILayout.TextArea(description);
+        infoStrManuel[1] = EditorGUILayout.TextArea(infoStrManuel[1]);
         EditorGUILayout.EndHorizontal();
 
         // Prix
         EditorGUILayout.BeginHorizontal();
         EditorGUILayout.PrefixLabel("Prix : ");
-        prix = EditorGUILayout.FloatField(prix);
+        infoFloatManuel[0] = EditorGUILayout.FloatField(infoFloatManuel[0]);
         EditorGUILayout.EndHorizontal();
 
         // Resistance
         EditorGUILayout.BeginHorizontal();
         EditorGUILayout.PrefixLabel("Resistance : ");
-        resistance = EditorGUILayout.FloatField(resistance);
+        infoFloatManuel[1] = EditorGUILayout.FloatField(infoFloatManuel[1]);
         EditorGUILayout.EndHorizontal();
 
         if (GUILayout.Button("Appliquer"))
@@ -66,17 +66,54 @@ public class OutilCDRIN : EditorWindow
             actionBoutonAppliquer();
         }
 
+        EditorGUI.EndDisabledGroup();
+
+        EditorGUILayout.Separator();
+        EditorGUILayout.LabelField(" ", GUI.skin.horizontalSlider);
         EditorGUILayout.Separator();
 
-        GUILayout.Label("Séléction à l'aide d'une zone");
+        GUILayout.Label("Séléction à l'aide d'une zone :", EditorStyles.boldLabel);
+
         if (GUILayout.Button("Séléctionner une zone"))
         {
             actionBoutonSelectionZone();
         }
+        EditorGUI.BeginDisabledGroup(desactiverAppliquerModificationAZoneChoisie);
+        EditorGUI.BeginDisabledGroup(desactiverInputSelectionManuelle);
+        // Nom
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.PrefixLabel("Nom : ");
+        infoStrZone[0] = EditorGUILayout.TextArea(infoStrZone[0]);
+        EditorGUILayout.EndHorizontal();
+
+        // Description
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.PrefixLabel("Description : ");
+        infoStrZone[1] = EditorGUILayout.TextArea(infoStrZone[1]);
+        EditorGUILayout.EndHorizontal();
+
+        // Prix
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.PrefixLabel("Prix : ");
+        infoFloatZone[0] = EditorGUILayout.FloatField(infoFloatZone[0]);
+        EditorGUILayout.EndHorizontal();
+
+        // Resistance
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.PrefixLabel("Resistance : ");
+        infoFloatZone[1] = EditorGUILayout.FloatField(infoFloatZone[1]);
+
+        EditorGUILayout.EndHorizontal();
         if (GUILayout.Button("Appliquer les modifications à la zone choisie"))
         {
             actionBoutonValidationZone();
         }
+        EditorGUI.EndDisabledGroup();
+
+        EditorGUILayout.Separator();
+        EditorGUILayout.LabelField(" ", GUI.skin.horizontalSlider);
+        EditorGUILayout.Separator();
+
     }
     void Update()
     {
@@ -85,9 +122,18 @@ public class OutilCDRIN : EditorWindow
         checkSiSelectionValide();
 
         if (selectionEnvironnement && selectionNonNULL)
+        {
             selectionValide = true;
+            desactiverInputSelectionManuelle = false;
+        }
         else
+        {
             selectionValide = false;
+            desactiverInputSelectionManuelle = true;
+        }
+
+        desactiverAppliquerModificationAZoneChoisie = selecteur == null ? true : false;
+
 
     }
 
@@ -129,10 +175,10 @@ public class OutilCDRIN : EditorWindow
             Debug.Log("Action bouton");
             foreach (GameObject obj in Selection.gameObjects)
             {
-                obj.GetComponent<Environnement>().nom = nom;
-                obj.GetComponent<Environnement>().description = description;
-                obj.GetComponent<Environnement>().prix = prix;
-                obj.GetComponent<Environnement>().resistance = resistance;
+                obj.GetComponent<Environnement>().nom = infoStrManuel[0];
+                obj.GetComponent<Environnement>().description = infoStrManuel[1];
+                obj.GetComponent<Environnement>().prix = float.Parse(infoStrManuel[2]);
+                obj.GetComponent<Environnement>().resistance = float.Parse(infoStrManuel[3]);
             }
         }
         else
@@ -154,21 +200,19 @@ public class OutilCDRIN : EditorWindow
         }
         selecteur = GameObject.CreatePrimitive(PrimitiveType.Cube);
         selecteur.name = "Selecteur";
-        selecteur.GetComponent<Renderer>().material.color = new Color(1.0f, 1.0f, 1.0f, 0.5f);
         EditorUtility.DisplayDialog("Séléction d'une zone", "Séléctionnez une zone avec le cube.", "Ok");
         selecteur.transform.position = new Vector3(0, 0, 0);
 
     }
     void actionBoutonValidationZone()
     {
-        List<GameObject> parts = new List<GameObject>();
-        GameObject[] allObjects = UnityEngine.GameObject.FindObjectsOfType<GameObject>();
-        foreach (GameObject go in allObjects)
+        GameObject[] objetsChoisis = UnityEngine.GameObject.FindObjectsOfType<GameObject>();
+        foreach (GameObject go in objetsChoisis)
         {
             if (go.activeInHierarchy && go.GetComponent<Environnement>() != null)
             {
-                if(selecteur.GetComponent<Renderer>().bounds.Contains(go.GetComponent<Renderer>().bounds.center))
-                    Debug.Log("okkkkkk :"+go);
+                if (selecteur.GetComponent<Renderer>().bounds.Contains(go.GetComponent<Renderer>().bounds.center))
+                    Debug.Log("okkkkkk :" + go);
             }
         }
     }
