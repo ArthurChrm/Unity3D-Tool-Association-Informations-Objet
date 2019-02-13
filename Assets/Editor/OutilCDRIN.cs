@@ -1,26 +1,39 @@
-﻿
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using System;
+using System.Runtime.Serialization.Formatters.Binary;
+using System.IO;
 
 public class OutilCDRIN : EditorWindow
 {
-    private string ERREUR_AUCUNE_SELECTION = "Séléctionnez un ou plusieurs éléments !";
-    private string ERREUR_PAS_ENVIRONNEMENT = "Votre séléction comporte un ou plusieurs éléments ne contenant pas de composant \"Environnement\"";
+    // Variables texte label
     private string labelSelectionObjet = "";
     private string labelErreurSelection = "";
+
+    //  Variables messages d'erreurs
+    private string AUCUNE_SELECTION = "Séléctionnez un ou plusieurs éléments !";
+    private string SELECTION_PAS_TYPE_ENVIRONNEMENT = "Votre séléction comporte un ou plusieurs éléments ne contenant pas de composant \"Environnement\"";
+
+    // Variables d'états
     private bool selectionNonNULL = false;
     private bool selectionEnvironnement = false;
     private bool selectionValide;
-    private GameObject selecteur;
     private bool desactiverInputSelectionManuelle = false;
     private bool desactiverAppliquerModificationAZoneChoisie = false;
 
     //Variables objet
-    private string[] infoStrManuel = { "", "", "0", "0" };
+    private GameObject selecteur;
+    private string[] infoStrManuel = { "", "" };
     private float[] infoFloatManuel = { 0f, 0f };
-    private string[] infoStrZone = { "", "", "0", "0" };
+    private string[] infoStrZone = { "", "" };
     private float[] infoFloatZone = { 0f, 0f };
+    private string[] infoStrSauvegarde = { "", "" };
+    private float[] infoFloatSauvegarde = { 0f, 0f };
+    private string nomFichier;
+
+    // Autre
+    string[] listeSauvegardes;
 
     [MenuItem("Outil CDRIN/Association Informations-Environnement")]
     public static void ShowWindow()
@@ -31,10 +44,11 @@ public class OutilCDRIN : EditorWindow
     {
         // Affichage des composants graphiques
 
-        GUILayout.Label("Séléction manuelle dans la hierarchy:", EditorStyles.boldLabel);
+        GUILayout.Label("Séléction manuelle dans la hierarchy", EditorStyles.boldLabel);
         GUILayout.Label(labelSelectionObjet);
         GUILayout.Label(labelErreurSelection);
         EditorGUI.BeginDisabledGroup(desactiverInputSelectionManuelle);
+
         // Nom
         EditorGUILayout.BeginHorizontal();
         EditorGUILayout.PrefixLabel("Nom : ");
@@ -61,7 +75,7 @@ public class OutilCDRIN : EditorWindow
 
         if (GUILayout.Button("Appliquer"))
         {
-            actionBoutonAppliquer();
+            manuel_appliquer();
         }
 
         EditorGUI.EndDisabledGroup();
@@ -70,12 +84,14 @@ public class OutilCDRIN : EditorWindow
         EditorGUILayout.LabelField(" ", GUI.skin.horizontalSlider);
         EditorGUILayout.Separator();
 
-        GUILayout.Label("Séléction à l'aide d'une zone :", EditorStyles.boldLabel);
+        GUILayout.Label("Séléction à l'aide d'une zone", EditorStyles.boldLabel);
+        EditorGUILayout.Separator();
 
         if (GUILayout.Button("Séléctionner une zone"))
         {
-            actionBoutonSelectionZone();
+            zone_selection();
         }
+
         EditorGUI.BeginDisabledGroup(desactiverAppliquerModificationAZoneChoisie);
         // Nom
         EditorGUILayout.BeginHorizontal();
@@ -103,7 +119,7 @@ public class OutilCDRIN : EditorWindow
         EditorGUILayout.EndHorizontal();
         if (GUILayout.Button("Appliquer les modifications à la zone choisie"))
         {
-            actionBoutonValidationZone();
+            zone_appliquer();
         }
         EditorGUI.EndDisabledGroup();
 
@@ -111,12 +127,64 @@ public class OutilCDRIN : EditorWindow
         EditorGUILayout.LabelField(" ", GUI.skin.horizontalSlider);
         EditorGUILayout.Separator();
 
+        // Partie sauvegarde/restauration
+        GUILayout.Label("Sauvegarde", EditorStyles.boldLabel);
+
+        // Nom
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.PrefixLabel("Nom : ");
+        infoStrSauvegarde[0] = EditorGUILayout.TextArea(infoStrSauvegarde[0]);
+        EditorGUILayout.EndHorizontal();
+
+        // Description
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.PrefixLabel("Description : ");
+        infoStrSauvegarde[1] = EditorGUILayout.TextArea(infoStrSauvegarde[1]);
+        EditorGUILayout.EndHorizontal();
+
+        // Prix
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.PrefixLabel("Prix : ");
+        infoFloatSauvegarde[0] = EditorGUILayout.FloatField(infoFloatSauvegarde[0]);
+        EditorGUILayout.EndHorizontal();
+
+        // Resistance
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.PrefixLabel("Resistance : ");
+        infoFloatSauvegarde[1] = EditorGUILayout.FloatField(infoFloatSauvegarde[1]);
+        EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.Separator();
+
+        // Séléction nom fichier
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.PrefixLabel("Nom de la sauvegarde : ");
+        nomFichier = EditorGUILayout.TextArea("");
+        EditorGUILayout.EndHorizontal();
+
+        if (GUILayout.Button("Enregistrer"))
+        {
+            enregistrer();
+        }
+
+        EditorGUILayout.Separator();
+        EditorGUILayout.LabelField(" ", GUI.skin.horizontalSlider);
+        EditorGUILayout.Separator();
+
+        GUILayout.Label("Restauration", EditorStyles.boldLabel);
+        EditorGUILayout.Separator();
+
+    }
+
+    void Start()
+    {
+
     }
     void Update()
     {
-        checkSiSelectionVide();
-        checkSiSelectionValide();
-        
+        manuel_checkSelectionVide();
+        manuel_checkSelectionValide();
+
         if (selectionEnvironnement && selectionNonNULL)
         {
             selectionValide = true;
@@ -131,24 +199,24 @@ public class OutilCDRIN : EditorWindow
         desactiverAppliquerModificationAZoneChoisie = selecteur == null ? true : false;
     }
 
-    void checkSiSelectionVide()
+    void manuel_checkSelectionVide()
     {
         // Va vérifier si l'utilisateur a séléctionné un élément
-        selectionNonNULL = Selection.gameObjects.Length == 0 ? false : true;
-        labelSelectionObjet = selectionNonNULL ? null : ERREUR_AUCUNE_SELECTION;
+        selectionNonNULL = !(Selection.gameObjects.Length == 0);
+        labelSelectionObjet = selectionNonNULL ? null : AUCUNE_SELECTION;
     }
 
-    void checkSiSelectionValide()
+    void manuel_checkSelectionValide()
     {
-        // Va vérifier si la séléction ne comporte que des gameObjects ayant le type "Environnement"
+        // Va vérifier si la sélection ne comporte que des gameObjects ayant le type "Environnement"
         foreach (GameObject obj in Selection.gameObjects)
         {
-            labelErreurSelection = obj.GetComponent<Environnement>() == null ? ERREUR_PAS_ENVIRONNEMENT : null;
-            selectionNonNULL = obj.GetComponent<Environnement>() == null ? false : true;
+            labelErreurSelection = obj.GetComponent<Environnement>() == null ? SELECTION_PAS_TYPE_ENVIRONNEMENT : null;
+            selectionEnvironnement = obj.GetComponent<Environnement>() == null ? false : true;
         }
     }
 
-    void actionBoutonAppliquer()
+    void manuel_appliquer()
     {
         if (!selectionValide)
         {
@@ -165,7 +233,7 @@ public class OutilCDRIN : EditorWindow
         }
     }
 
-    void actionBoutonSelectionZone()
+    void zone_selection()
     {
         Debug.Log("Action selection zone");
         List<GameObject> parts = new List<GameObject>();
@@ -181,7 +249,7 @@ public class OutilCDRIN : EditorWindow
         selecteur.transform.position = new Vector3(0, 0, 0);
 
     }
-    void actionBoutonValidationZone()
+    void zone_appliquer()
     {
         GameObject[] allObjects = UnityEngine.GameObject.FindObjectsOfType<GameObject>();
         foreach (GameObject go in allObjects)
@@ -195,9 +263,32 @@ public class OutilCDRIN : EditorWindow
                     go.GetComponent<Environnement>().prix = infoFloatZone[0];
                     go.GetComponent<Environnement>().resistance = infoFloatZone[1];
                 }
-
         }
     }
 
+    void enregistrer()
+    {
+        SauvegardeEnvironnement temp = new SauvegardeEnvironnement();
+        temp.nom = infoStrSauvegarde[0];
+        temp.description = infoStrSauvegarde[1];
+        temp.prix = infoFloatSauvegarde[0];
+        temp.resistance = infoFloatSauvegarde[1];
 
+        BinaryFormatter bf = new BinaryFormatter();
+        FileStream file = File.Open(Application.persistentDataPath + "/" + nomFichier + ".dat", FileMode.OpenOrCreate);
+
+        bf.Serialize(file, temp);
+        file.Close();
+        Debug.Log("Sauvegarde créée à l'endroit :" + Application.persistentDataPath + "/sauvegarde.dat");
+    }
 }
+
+[Serializable]
+class SauvegardeEnvironnement
+{
+    public string nom;
+    public string description;
+    public float prix;
+    public float resistance;
+}
+
