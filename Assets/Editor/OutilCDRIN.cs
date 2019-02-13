@@ -177,6 +177,11 @@ public class OutilCDRIN : EditorWindow
 
         emplacementChoixRestauration = EditorGUILayout.Popup("Sauvegarde à restaurer", emplacementChoixRestauration, listeSauvegardes);
 
+        if (GUILayout.Button("Restaurer la séléction"))
+        {
+            restaurer();
+        }
+
     }
 
     void Awake()
@@ -292,6 +297,28 @@ public class OutilCDRIN : EditorWindow
         miseAjoutListeSauvegardes();
     }
 
+    void restaurer()
+    {
+        Debug.Log(Application.persistentDataPath + listeSauvegardes[emplacementChoixRestauration]);
+        if (File.Exists(Application.persistentDataPath + "/" + listeSauvegardes[emplacementChoixRestauration]))
+        {
+            BinaryFormatter bf = new BinaryFormatter();
+            FileStream file = File.Open(Application.persistentDataPath + "/" + listeSauvegardes[emplacementChoixRestauration], FileMode.Open);
+            SauvegardeEnvironnement temp = (SauvegardeEnvironnement)bf.Deserialize(file);
+            file.Close();
+
+            infoStrManuel[0] = temp.nom;
+            infoStrManuel[1] = temp.description;
+            infoFloatManuel[0] = temp.prix;
+            infoFloatManuel[1] = temp.resistance;
+
+            infoStrZone[0] = temp.nom;
+            infoStrZone[1] = temp.description;
+            infoFloatZone[0] = temp.prix;
+            infoFloatZone[1] = temp.resistance;
+        }
+    }
+
     void miseAjoutListeSauvegardes()
     {
         string[] temp = Directory.GetFiles(Application.persistentDataPath);
@@ -303,7 +330,6 @@ public class OutilCDRIN : EditorWindow
         }
 
         listeSauvegardes = listeTemp.ToArray();
-       
     }
 }
 
