@@ -29,13 +29,11 @@ public class OutilCDRIN : EditorWindow
     }
     void OnGUI()
     {
-        // Window code
-        GUILayout.Label(labelSelectionObjet);
-        GUILayout.Label(labelErreurSelection);
-
-        EditorGUILayout.Separator();
+        // Affichage des composants graphiques
 
         GUILayout.Label("Séléction manuelle dans la hierarchy:", EditorStyles.boldLabel);
+        GUILayout.Label(labelSelectionObjet);
+        GUILayout.Label(labelErreurSelection);
         EditorGUI.BeginDisabledGroup(desactiverInputSelectionManuelle);
         // Nom
         EditorGUILayout.BeginHorizontal();
@@ -79,7 +77,6 @@ public class OutilCDRIN : EditorWindow
             actionBoutonSelectionZone();
         }
         EditorGUI.BeginDisabledGroup(desactiverAppliquerModificationAZoneChoisie);
-        EditorGUI.BeginDisabledGroup(desactiverInputSelectionManuelle);
         // Nom
         EditorGUILayout.BeginHorizontal();
         EditorGUILayout.PrefixLabel("Nom : ");
@@ -117,10 +114,9 @@ public class OutilCDRIN : EditorWindow
     }
     void Update()
     {
-        //Debug.Log(Input.mousePosition);
         checkSiSelectionVide();
         checkSiSelectionValide();
-
+        
         if (selectionEnvironnement && selectionNonNULL)
         {
             selectionValide = true;
@@ -133,23 +129,13 @@ public class OutilCDRIN : EditorWindow
         }
 
         desactiverAppliquerModificationAZoneChoisie = selecteur == null ? true : false;
-
-
     }
 
     void checkSiSelectionVide()
     {
         // Va vérifier si l'utilisateur a séléctionné un élément
-        if (Selection.gameObjects.Length == 0)
-        {
-            labelSelectionObjet = ERREUR_AUCUNE_SELECTION;
-            selectionNonNULL = false;
-        }
-        else
-        {
-            labelSelectionObjet = null;
-            selectionNonNULL = true;
-        }
+        selectionNonNULL = Selection.gameObjects.Length == 0 ? false : true;
+        labelSelectionObjet = selectionNonNULL ? null : ERREUR_AUCUNE_SELECTION;
     }
 
     void checkSiSelectionValide()
@@ -157,33 +143,25 @@ public class OutilCDRIN : EditorWindow
         // Va vérifier si la séléction ne comporte que des gameObjects ayant le type "Environnement"
         foreach (GameObject obj in Selection.gameObjects)
         {
-            if (obj.GetComponent<Environnement>() == null)
-            {
-                labelErreurSelection = ERREUR_PAS_ENVIRONNEMENT;
-                selectionNonNULL = false;
-                return;
-            }
+            labelErreurSelection = obj.GetComponent<Environnement>() == null ? ERREUR_PAS_ENVIRONNEMENT : null;
+            selectionNonNULL = obj.GetComponent<Environnement>() == null ? false : true;
         }
-        selectionEnvironnement = true;
-        labelErreurSelection = null;
     }
 
     void actionBoutonAppliquer()
     {
-        if (selectionValide)
-        {
-            Debug.Log("Action bouton");
-            foreach (GameObject obj in Selection.gameObjects)
-            {
-                obj.GetComponent<Environnement>().nom = infoStrManuel[0];
-                obj.GetComponent<Environnement>().description = infoStrManuel[1];
-                obj.GetComponent<Environnement>().prix = float.Parse(infoStrManuel[2]);
-                obj.GetComponent<Environnement>().resistance = float.Parse(infoStrManuel[3]);
-            }
-        }
-        else
+        if (!selectionValide)
         {
             EditorUtility.DisplayDialog("Erreur de sélection", "Votre sélection est invalide", "Ok");
+            return;
+        }
+
+        foreach (GameObject obj in Selection.gameObjects)
+        {
+            obj.GetComponent<Environnement>().nom = infoStrManuel[0];
+            obj.GetComponent<Environnement>().description = infoStrManuel[1];
+            obj.GetComponent<Environnement>().prix = float.Parse(infoStrManuel[2]);
+            obj.GetComponent<Environnement>().resistance = float.Parse(infoStrManuel[3]);
         }
     }
 
@@ -196,24 +174,28 @@ public class OutilCDRIN : EditorWindow
         {
             if (go.activeInHierarchy && go.name == "Selecteur")
                 DestroyImmediate(go);
-
         }
         selecteur = GameObject.CreatePrimitive(PrimitiveType.Cube);
         selecteur.name = "Selecteur";
-        EditorUtility.DisplayDialog("Séléction d'une zone", "Séléctionnez une zone avec le cube.", "Ok");
+        EditorUtility.DisplayDialog("Sélection d'une zone", "Séléctionnez une zone avec le cube.", "Ok");
         selecteur.transform.position = new Vector3(0, 0, 0);
 
     }
     void actionBoutonValidationZone()
     {
-        GameObject[] objetsChoisis = UnityEngine.GameObject.FindObjectsOfType<GameObject>();
-        foreach (GameObject go in objetsChoisis)
+        GameObject[] allObjects = UnityEngine.GameObject.FindObjectsOfType<GameObject>();
+        foreach (GameObject go in allObjects)
         {
             if (go.activeInHierarchy && go.GetComponent<Environnement>() != null)
-            {
                 if (selecteur.GetComponent<Renderer>().bounds.Contains(go.GetComponent<Renderer>().bounds.center))
-                    Debug.Log("okkkkkk :" + go);
-            }
+                {
+                    Debug.Log(go);
+                    go.GetComponent<Environnement>().nom = infoStrZone[0];
+                    go.GetComponent<Environnement>().description = infoStrZone[1];
+                    go.GetComponent<Environnement>().prix = infoFloatZone[0];
+                    go.GetComponent<Environnement>().resistance = infoFloatZone[1];
+                }
+
         }
     }
 
