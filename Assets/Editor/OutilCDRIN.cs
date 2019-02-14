@@ -7,22 +7,22 @@ using System.IO;
 
 public class OutilCDRIN : EditorWindow
 {
-    // Variables texte label
+    // Variables texte pour les labels pouvant être changés
     private string labelSelectionObjet = "";
     private string labelErreurSelection = "";
 
-    //  Variables messages d'erreurs
+    // Variables pour messages d'erreurs
     private string AUCUNE_SELECTION = "Séléctionnez un ou plusieurs éléments !";
     private string SELECTION_PAS_TYPE_ENVIRONNEMENT = "Votre séléction comporte un ou plusieurs éléments ne contenant pas de composant \"Environnement\"";
 
-    // Variables d'états
+    // Variables d'états des entrées
     private bool selectionNonNULL = false;
     private bool selectionEnvironnement = false;
     private bool selectionValide;
     private bool desactiverInputSelectionManuelle = false;
     private bool desactiverAppliquerModificationAZoneChoisie = false;
 
-    //Variables objet
+    // Variables objets
     private GameObject selecteur;
     private string[] infoStrManuel = { "", "" };
     private float[] infoFloatManuel = { 0f, 0f };
@@ -32,7 +32,7 @@ public class OutilCDRIN : EditorWindow
     private float[] infoFloatSauvegarde = { 0f, 0f };
     private string nomFichier = "";
 
-    // Autre
+    // Sauvegarde - Restauration
     string[] listeSauvegardes;
     int emplacementChoixRestauration = 0;
 
@@ -76,21 +76,21 @@ public class OutilCDRIN : EditorWindow
 
         if (GUILayout.Button("Appliquer"))
         {
-            manuel_appliquer();
+            appliquerSelectionManuelleHierarchie();
         }
-
         EditorGUI.EndDisabledGroup();
 
         EditorGUILayout.Separator();
+
         EditorGUILayout.LabelField(" ", GUI.skin.horizontalSlider);
         EditorGUILayout.Separator();
 
-        GUILayout.Label("Séléction à l'aide d'une zone", EditorStyles.boldLabel);
+        GUILayout.Label("Sélection à l'aide d'une zone", EditorStyles.boldLabel);
         EditorGUILayout.Separator();
 
-        if (GUILayout.Button("Séléctionner une zone"))
+        if (GUILayout.Button("Sélectionner une zone"))
         {
-            zone_selection();
+            actionSelectionZone();
         }
 
         EditorGUI.BeginDisabledGroup(desactiverAppliquerModificationAZoneChoisie);
@@ -120,7 +120,7 @@ public class OutilCDRIN : EditorWindow
         EditorGUILayout.EndHorizontal();
         if (GUILayout.Button("Appliquer les modifications à la zone choisie"))
         {
-            zone_appliquer();
+            appliquerSelectionZone();
         }
         EditorGUI.EndDisabledGroup();
 
@@ -181,17 +181,17 @@ public class OutilCDRIN : EditorWindow
         {
             restaurer();
         }
-
     }
 
     void Awake()
     {
-        miseAjoutListeSauvegardes();
+        miseAJourListeSauvegarde();
     }
+
     void Update()
     {
-        manuel_checkSelectionVide();
-        manuel_checkSelectionValide();
+        checkSiSelectionHierarchieVide();
+        checkSiSelectionHierarchieValide();
 
         if (selectionEnvironnement && selectionNonNULL)
         {
@@ -207,14 +207,14 @@ public class OutilCDRIN : EditorWindow
         desactiverAppliquerModificationAZoneChoisie = selecteur == null ? true : false;
     }
 
-    void manuel_checkSelectionVide()
+    void checkSiSelectionHierarchieVide()
     {
         // Va vérifier si l'utilisateur a séléctionné un élément
         selectionNonNULL = !(Selection.gameObjects.Length == 0);
         labelSelectionObjet = selectionNonNULL ? null : AUCUNE_SELECTION;
     }
 
-    void manuel_checkSelectionValide()
+    void checkSiSelectionHierarchieValide()
     {
         // Va vérifier si la sélection ne comporte que des gameObjects ayant le type "Environnement"
         foreach (GameObject obj in Selection.gameObjects)
@@ -224,7 +224,7 @@ public class OutilCDRIN : EditorWindow
         }
     }
 
-    void manuel_appliquer()
+    void appliquerSelectionManuelleHierarchie()
     {
         if (!selectionValide)
         {
@@ -241,9 +241,8 @@ public class OutilCDRIN : EditorWindow
         }
     }
 
-    void zone_selection()
+    void actionSelectionZone()
     {
-        Debug.Log("Action selection zone");
         List<GameObject> parts = new List<GameObject>();
         GameObject[] allObjects = UnityEngine.GameObject.FindObjectsOfType<GameObject>();
         foreach (GameObject go in allObjects)
@@ -255,9 +254,8 @@ public class OutilCDRIN : EditorWindow
         selecteur.name = "Selecteur";
         EditorUtility.DisplayDialog("Sélection d'une zone", "Séléctionnez une zone avec le cube.", "Ok");
         selecteur.transform.position = new Vector3(0, 0, 0);
-
     }
-    void zone_appliquer()
+    void appliquerSelectionZone()
     {
         GameObject[] allObjects = UnityEngine.GameObject.FindObjectsOfType<GameObject>();
         foreach (GameObject go in allObjects)
@@ -276,7 +274,7 @@ public class OutilCDRIN : EditorWindow
 
     void enregistrer()
     {
-        miseAjoutListeSauvegardes();
+        miseAJourListeSauvegarde();
         if (nomFichier == "")
         {
             EditorUtility.DisplayDialog("Erreur", "Vous devez donner un nom au fichier.", "Ok");
@@ -294,7 +292,7 @@ public class OutilCDRIN : EditorWindow
         bf.Serialize(file, temp);
         file.Close();
         Debug.Log("Sauvegarde créée :" + Application.persistentDataPath);
-        miseAjoutListeSauvegardes();
+        miseAJourListeSauvegarde();
     }
 
     void restaurer()
@@ -317,9 +315,10 @@ public class OutilCDRIN : EditorWindow
             infoFloatZone[0] = temp.prix;
             infoFloatZone[1] = temp.resistance;
         }
+        miseAJourListeSauvegarde();
     }
 
-    void miseAjoutListeSauvegardes()
+    void miseAJourListeSauvegarde()
     {
         string[] temp = Directory.GetFiles(Application.persistentDataPath);
         List<string> listeTemp = new List<string>();
@@ -328,11 +327,11 @@ public class OutilCDRIN : EditorWindow
         {
             listeTemp.Add(Path.GetFileName(temp[i]));
         }
-
         listeSauvegardes = listeTemp.ToArray();
     }
 }
 
+// Je n'utilise pas la classe Environnement car l'héritage de MonoBehavior provoque des problèmes lors de la sérialisation.
 [Serializable]
 class SauvegardeEnvironnement
 {
@@ -341,4 +340,3 @@ class SauvegardeEnvironnement
     public float prix;
     public float resistance;
 }
-
