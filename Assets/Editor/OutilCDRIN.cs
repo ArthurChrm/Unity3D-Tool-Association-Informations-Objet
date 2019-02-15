@@ -252,7 +252,7 @@ public class OutilCDRIN : EditorWindow
         }
         selecteur = GameObject.CreatePrimitive(PrimitiveType.Cube);
         selecteur.name = "Selecteur";
-        EditorUtility.DisplayDialog("Sélection d'une zone", "Séléctionnez une zone avec le cube.", "Ok");
+        EditorUtility.DisplayDialog("Sélection d'une zone", "Séléctionnez une zone avec le cube \"Sélecteur\".", "Ok");
         selecteur.transform.position = new Vector3(0, 0, 0);
     }
     void appliquerSelectionZone()
