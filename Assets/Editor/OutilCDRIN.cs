@@ -277,7 +277,7 @@ public class OutilCDRIN : EditorWindow
         miseAJourListeSauvegarde();
         if (nomFichier == "")
         {
-            EditorUtility.DisplayDialog("Erreur", "Vous devez donner un nom au fichier.", "Ok");
+            EditorUtility.DisplayDialog("Erreur", "Vous devez donner un nom à la sauvegarde.", "Ok");
             return;
         }
         SauvegardeEnvironnement temp = new SauvegardeEnvironnement();
@@ -297,7 +297,7 @@ public class OutilCDRIN : EditorWindow
 
     void restaurer()
     {
-        Debug.Log(Application.persistentDataPath + listeSauvegardes[emplacementChoixRestauration]);
+        Debug.Log(Application.persistentDataPath + "/"+listeSauvegardes[emplacementChoixRestauration]);
         if (File.Exists(Application.persistentDataPath + "/" + listeSauvegardes[emplacementChoixRestauration]))
         {
             BinaryFormatter bf = new BinaryFormatter();

@@ -276,7 +276,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4033363159398764, guid: 70369751dd847514999a1ea87f13dba2, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 0
+      value: 568
       objectReference: {fileID: 0}
     - target: {fileID: 4033363159398764, guid: 70369751dd847514999a1ea87f13dba2, type: 3}
       propertyPath: m_LocalPosition.y
@@ -317,6 +317,26 @@ PrefabInstance:
     - target: {fileID: 4033363159398764, guid: 70369751dd847514999a1ea87f13dba2, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3699787075626757287, guid: 70369751dd847514999a1ea87f13dba2,
+        type: 3}
+      propertyPath: nom
+      value: Arbre
+      objectReference: {fileID: 0}
+    - target: {fileID: 3699787075626757287, guid: 70369751dd847514999a1ea87f13dba2,
+        type: 3}
+      propertyPath: description
+      value: ceci est un arbre
+      objectReference: {fileID: 0}
+    - target: {fileID: 3699787075626757287, guid: 70369751dd847514999a1ea87f13dba2,
+        type: 3}
+      propertyPath: prix
+      value: 500
+      objectReference: {fileID: 0}
+    - target: {fileID: 3699787075626757287, guid: 70369751dd847514999a1ea87f13dba2,
+        type: 3}
+      propertyPath: resistance
+      value: 500
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 70369751dd847514999a1ea87f13dba2, type: 3}
@@ -374,6 +394,21 @@ PrefabInstance:
     - target: {fileID: 4926166924571094, guid: 11a0f8e1819871641b18add26a6f3675, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8678491651923988456, guid: 11a0f8e1819871641b18add26a6f3675,
+        type: 3}
+      propertyPath: nom
+      value: Voiture
+      objectReference: {fileID: 0}
+    - target: {fileID: 8678491651923988456, guid: 11a0f8e1819871641b18add26a6f3675,
+        type: 3}
+      propertyPath: description
+      value: Petite voiture
+      objectReference: {fileID: 0}
+    - target: {fileID: 8678491651923988456, guid: 11a0f8e1819871641b18add26a6f3675,
+        type: 3}
+      propertyPath: prix
+      value: 1500
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 11a0f8e1819871641b18add26a6f3675, type: 3}
@@ -465,7 +500,22 @@ PrefabInstance:
     - target: {fileID: 4096965810929874571, guid: a294f7759c82dd34a84fcd2347b816a1,
         type: 3}
       propertyPath: nom
-      value: ',h,g'
+      value: Maison
+      objectReference: {fileID: 0}
+    - target: {fileID: 4096965810929874571, guid: a294f7759c82dd34a84fcd2347b816a1,
+        type: 3}
+      propertyPath: description
+      value: ceci est une maison
+      objectReference: {fileID: 0}
+    - target: {fileID: 4096965810929874571, guid: a294f7759c82dd34a84fcd2347b816a1,
+        type: 3}
+      propertyPath: prix
+      value: 1000
+      objectReference: {fileID: 0}
+    - target: {fileID: 4096965810929874571, guid: a294f7759c82dd34a84fcd2347b816a1,
+        type: 3}
+      propertyPath: resistance
+      value: 20
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: a294f7759c82dd34a84fcd2347b816a1, type: 3}
